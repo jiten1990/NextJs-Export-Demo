@@ -1,11 +1,17 @@
 import Link from 'next/link';
+import Head from 'next/Head';
 
 const linkStyle = {
 	marginRight : 15
 }
 
 const Header = () => (
+
   <div>
+    <Head>
+        <title>Next JS Export Demo</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"></link>
+    </Head>
     <Link href="/">
       <a style={linkStyle}>Home</a>
     </Link>
