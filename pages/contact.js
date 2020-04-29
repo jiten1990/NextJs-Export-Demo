@@ -3,7 +3,69 @@ import fetch from 'node-fetch';
 import { Formik } from 'formik';
 
 
-function Contact() {
+export function Contact(props) {
+
+	  const initialValues = { 
+		email: '', 
+		first_name: '', 
+		last_name: '', 
+		contact: '',
+		comments: '' 
+	  }
+
+	  function handleSubmit(values, form, resetForm) {
+	  	const httpConfig = {
+	  		headers: {
+	            'Accept': 'application/json',
+	            'Content-Type': 'application/json'
+	        },
+	        method: "POST",
+	        body: JSON.stringify(values)
+	  	}
+	    fetch("https://httpbin.org/post", httpConfig ).then(res => {
+	        if (res.ok) {
+	            return res.json();
+	        } else {
+	        	throw new Error('Something went wrong');
+	        }
+	    }).then(response => {
+	       form.resetForm({});
+	       values = {};
+	       form.setSubmitting(false);
+	    }).catch(err => {
+	        form.setSubmitting(false);
+	    })
+	}
+
+	
+
+	function validation(values) {
+	    const errors = {};
+        if (!values.email) {
+          errors.email = 'Email is Required';
+        }
+        else if (
+          !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
+        ) {
+          errors.email = 'Invalid email address';
+        }
+
+        if (!values.first_name) {
+          errors.first_name = 'First Name is Required';
+        }
+        if (!values.last_name) {
+          errors.last_name = 'Last Name is Required';
+        }
+        if (!values.contact) {
+          errors.contact = 'Contact No is Required';
+        }
+        else if (
+          !/^(?:(?:\+|0{0,2})91(\s*[\ -]\s*)?|[0]?)?[789]\d{9}|(\d[ -]?){10}\d$/i.test(values.contact)
+        ) {
+          errors.contact = 'Invalid Contact No';
+        }
+        return errors;
+	}
 	
   return (
   	<Layout>
@@ -11,59 +73,18 @@ function Contact() {
     	
     <div className="contactForm">
 	    <Formik
-	      initialValues={{ email: '', first_name: '', last_name: '', contact: '', comments: '' }}
-	      validate={values => {
-	        const errors = {};
-	        if (!values.email) {
-	          errors.email = 'Email is Required';
-	        }
-	        else if (
-	          !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-	        ) {
-	          errors.email = 'Invalid email address';
-	        }
-
-	        if (!values.first_name) {
-	          errors.first_name = 'First Name is Required';
-	        }
-	        if (!values.last_name) {
-	          errors.last_name = 'Last Name is Required';
-	        }
-	        if (!values.contact) {
-	          errors.contact = 'Contact No is Required';
-	        }
-	        else if (
-	          !/^(?:(?:\+|0{0,2})91(\s*[\ -]\s*)?|[0]?)?[789]\d{9}|(\d[ -]?){10}\d$/i.test(values.contact)
-	        ) {
-	          errors.contact = 'Invalid Contact No';
-	        }
-	        return errors;
-	      }}
-	      onSubmit={(values, { setSubmitting, setErrors, setStatus, resetForm }) => {
-
-			const respose = fetch('https://httpbin.org/post', {
-		        method: 'post',
-		        body:    JSON.stringify(values, null, 2),
-		        headers: { 'Content-Type': 'application/json' },
-		    })
-		    .then(res => res.json())
-		    .then(
-		    	json => console.log(json.data),
-		    	resetForm({}),
-		    	alert("Thank you for your queries. One of our representatives will get in touch with you.")
-		    );
-
-	      }}
+	      initialValues={initialValues}
+	      validate={validation}
+	      onSubmit={handleSubmit}
 	    >
 	      {({
-	        values,
+	      	values,
 	        errors,
 	        touched,
 	        handleChange,
 	        handleBlur,
 	        handleSubmit,
 	        isSubmitting,
-	        /* and other goodies */
 	      }) => (
 	        <form onSubmit={handleSubmit}>
                
@@ -147,6 +168,7 @@ function Contact() {
 	    </Formik>
     </div>	
     </Layout>
+
   )
 }
 
